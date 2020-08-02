@@ -1,3 +1,4 @@
+import os
 import time
 from datetime import datetime
 
@@ -14,8 +15,6 @@ from keras.utils import np_utils
 
 # use_model = 'models/model_epoch_10_2020-08-01_19_32_44.h5'
 use_model = None
-
-enable_evaluation = not use_model
 
 
 def dataset():
@@ -91,19 +90,22 @@ def model_2():
     return model
 
 
-def train_model(model):
+def train_model(model, epoch):
     time_str = datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = "logs/fit/" + time_str
+    log_dir = os.path.join('logs', 'fit', time_str)
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-
-    weight_save_callback = ModelCheckpoint('models/model_{epoch:02d}-{val_loss:.2f}-%s.hdf5' % time_str,
+    
+    weight_save_callback = ModelCheckpoint(os.path.join('models', 'model_{epoch:02d}-{val_loss:.2f}-%s.hdf5' % time_str),
                                            monitor='val_loss',
                                            verbose=0, save_best_only=False, mode='auto')
 
     x_train, y_train, x_test, y_test = dataset()
-    model.fit(x_train, y_train, batch_size=32, epochs=15,
+    model.fit(x_train, y_train, batch_size=32, epochs=epoch,
               callbacks=[tensorboard_callback, weight_save_callback],
               validation_split=0.15)
+
+    loss, accuracy = model.evaluate(x_test, y_test)
+    print("on test set loss: ", loss, "acc: ", accuracy)
     return model
 
 
@@ -112,12 +114,7 @@ if use_model:
     model = load_model(use_model)
 else:
     print("training new model")
-    model = train_model(model_2())
-
-if enable_evaluation:
-    x_train, y_train, x_test, y_test = dataset()
-    loss, accuracy = model.evaluate(x_test, y_test)
-    print("loss: ", loss, "acc: ", accuracy)
+    model = train_model(model_2(), epoch=15)
 
 
 def predict(img):
