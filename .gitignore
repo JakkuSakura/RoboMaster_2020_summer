@@ -1,5 +1,8 @@
-models/
+models/*
+!models/.gitkeep
 *.iml
 .idea
 official/auto_grader/image/*
-logs
+logs/fit/*
+!logs/fit/.gitkeep
+
