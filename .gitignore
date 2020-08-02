@@ -2,3 +2,4 @@ models/
 *.iml
 .idea
 official/auto_grader/image/*
+logs
