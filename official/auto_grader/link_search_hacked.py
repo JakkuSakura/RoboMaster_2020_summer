@@ -73,6 +73,7 @@ class link_search:  # line:2
         if self.empty(row2, col1) and self.search_zero(row1, col1, row2, col1) \
                 and self.search_zero(row2, col2, row2, col1):  # line:72
             return True  # line:73
+        return False
 
     def search_two(self, row1, col1, row2, col2):  # line:75
         for i in range(row1 - 1, -2, -1):  # line:76

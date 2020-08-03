@@ -3,6 +3,8 @@ models/*
 *.iml
 .idea
 official/auto_grader/image/*
+!official/auto_grader/image/.gitkeep
 logs/fit/*
 !logs/fit/.gitkeep
-
+algorithms/cmake-build-*
+model.hdf5

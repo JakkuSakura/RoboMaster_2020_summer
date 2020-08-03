@@ -13,8 +13,16 @@ from keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout
 from keras.optimizers import Adam
 from keras.utils import np_utils
 
-# use_model = 'models/model_epoch_10_2020-08-01_19_32_44.h5'
-use_model = None
+use_model = 'model.hdf5'
+# use_model = None
+
+
+from tensorflow.compat.v1 import ConfigProto
+from tensorflow.compat.v1 import InteractiveSession
+
+config = ConfigProto()
+config.gpu_options.allow_growth = True
+session = InteractiveSession(config=config)
 
 
 def dataset():
@@ -114,7 +122,7 @@ if use_model:
     model = load_model(use_model)
 else:
     print("training new model")
-    model = train_model(model_2(), epoch=15)
+    model = train_model(model_1(), epoch=15)
 
 
 def predict(img):

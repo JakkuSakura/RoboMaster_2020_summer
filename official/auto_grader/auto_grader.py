@@ -6,6 +6,7 @@ import _thread  #line:5
 import tkinter as tk  #line:6
 import tkinter.font as tf  #line:7
 import tkinter.scrolledtext  #line:8
+from PIL.ImageTk import PhotoImage
 from link_search import link_search  #line:9
 sys.path.append("../read_picture/")  #line:10
 import read_picture  #line:11
@@ -82,7 +83,9 @@ class auto_grader:  #line:14
         OOOOO00O0O00O00O0 = tk.Tk()  #line:74
         OOOOO00O0O00O00O0.title(
             ' RoboMaster 2020 Summer Camp Algorithm AutoGrader')  #line:75
-        OOOOO00O0O00O00O0.iconbitmap('../auto_grader/favicon.ico')  #line:76
+        icon = PhotoImage(file="../auto_grader/favicon.ico")
+        OOOOO00O0O00O00O0.tk.call('wm', 'iconphoto', OOOOO00O0O00O00O0._w, icon)
+        # OOOOO00O0O00O00O0.iconbitmap('../auto_grader/favicon.ico')  #line:76
         OOOOO00O0O00O00O0.geometry('1000x650')  #line:77
         OOOOO00O0O00O00O0["background"] = 'white'  #line:78
         OOOOO00O0O00O00O0.resizable(0, 0)  #line:79
