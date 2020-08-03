@@ -1,12 +1,8 @@
 import image_process_cv
 import number_recognition_keras
+import correction
 import numpy as np
 from colorama import Fore, Back, Style
-
-def to_numbers(one_hot_labels):
-    labels = np.array([one_hot_label.argmax() for one_hot_label in one_hot_labels])
-    return labels
-
 
 if __name__ == '__main__':
     images = image_process_cv.get_images()
@@ -18,7 +14,10 @@ if __name__ == '__main__':
     colors = np.array([image_process_cv.get_color(x) for x in images])
     print('colors:', colors.shape)
 
-    numbers = to_numbers(number_recognition_keras.predict(gray_images))
+    raw_predict = number_recognition_keras.predict(gray_images)
+    print('raw_predict', raw_predict)
+
+    numbers = correction.get_number_and_correct(raw_predict, colors)
     print('numbers: ', numbers.shape)
 
     # color_dict = ['R', 'G', 'B']

@@ -122,7 +122,7 @@ if use_model:
     model = load_model(use_model)
 else:
     print("training new model")
-    model = train_model(model_1(), epoch=15)
+    model = train_model(model_2(), epoch=15)
 
 
 def predict(img):
