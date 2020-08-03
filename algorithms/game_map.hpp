@@ -4,15 +4,15 @@
 #include <vector>
 #include <cstring>
 #include <algorithm>
+#include <bitset>
 static const std::vector<int> SCORES = {50, 20, 10, 0, -10, -100, -100};
 static const std::vector<int> DOUBLE_SCORES = {100, 20, 10, 0};
 static std::vector<int> ans_list;
 
 class game_map {
 public:
-    bool grid[8][8];
+    std::bitset<64> removed;
     int current_score;
-    int steps;
 
     explicit game_map() {
         reset();
@@ -21,27 +21,29 @@ public:
     game_map(const game_map &o) = default;
 
     void reset() {
-        memset(this->grid, 0x00, sizeof grid);
+        removed = 0;
         current_score = 0;
-        this->steps = 0;
+    }
+    int get_steps() const {
+        return removed.count() >> 1;
     }
 
 
-    bool validate(int row, int col) {
+    bool validate(int row, int col) const {
         return 0 <= row && row < 8 && 0 <= col && col < 8;
     }
 
     bool empty(int row, int col) {
         if (!this->validate(row, col))
             return true;
-        return this->grid[row][col];
+        return this->removed[row * 8 + col];
     }
 
     void remove(int row1, int col1, int row2, int col2) {
-        this->grid[row1][col1] = true;
-        this->grid[row2][col2] = true;
-        steps += 1;
+        this->removed[row1 * 8 + col1] = true;
+        this->removed[row2 * 8 + col2] = true;
     }
+
     int get_score_by_result(int result) {
         switch (result) {
             case -3: // different colors
@@ -52,7 +54,7 @@ public:
                 return SCORES[6];
             default: // 0~4 lines
                 std::vector<int> bonus = {4, 8, 16, 27, 28, 29, 30, 31, 32};
-                bool bonus_round = std::binary_search(bonus.begin(), bonus.end(), steps);
+                bool bonus_round = std::binary_search(bonus.begin(), bonus.end(), get_steps());
                 if(bonus_round)
                     return DOUBLE_SCORES[result - 1];
                 else
@@ -62,7 +64,7 @@ public:
     int link(int row1, int col1, int row2, int col2) {
         int result = search(row1, col1, row2, col2);
         current_score += get_score_by_result(current_score);
-        if (result > 0)
+        if (result >= 0)
             remove(row1, col1, row2, col2);
         return result;
     }
