@@ -67,7 +67,7 @@ state solve(const game_map &init_state) {
     qu.insert(state{init_state});
     auto best_solution = state{init_state};
     clock_t begin = clock();
-    while (!qu.empty() && double(clock() - begin) / CLOCKS_PER_SEC < 40) {
+    while (!qu.empty() && double(clock() - begin) / CLOCKS_PER_SEC < 45) {
         state x = pop_best_state(qu);
 //        show_ans(cout, x);
         if (x.map.get_steps() == 32) {
@@ -77,9 +77,10 @@ state solve(const game_map &init_state) {
             }
             continue;
         }
+
         for (int i = 0; i < 64; ++i) {
             if (x.map.empty(i / 8, i % 8)) continue;
-            for (int j = 0; j < 64; ++j) {
+            for (int j = i + 1; j < 64; ++j) {
                 if (x.map.empty(j / 8, j % 8)) continue;
                 int result = x.map.search(i / 8, i % 8, j / 8, j % 8);
                 if (x.map.get_score_by_result(result) < 0) continue;
@@ -99,7 +100,6 @@ state solve(const game_map &init_state) {
                             pop_worst_state(qu);
                     }
                 }
-
             }
         }
     }
