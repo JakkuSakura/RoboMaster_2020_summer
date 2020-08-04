@@ -8,3 +8,7 @@ logs/fit/*
 !logs/fit/.gitkeep
 algorithms/cmake-build-*
 model.hdf5
+map.txt
+solution.txt
+algorithms/solution
+algorithms/solution.exe

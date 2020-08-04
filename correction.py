@@ -15,9 +15,9 @@ def get_counts(ans, colors):
 
 def get_number_and_correct(raw_predict, color_list):
     raw_ans = to_numbers(raw_predict)
-    for i in range(raw_ans.shape[0]):
-        p = raw_ans[i]
-        assert raw_predict[i][p] > 0.998
+    # for i in range(raw_ans.shape[0]):
+    #     p = raw_ans[i]
+    #     assert raw_predict[i][p] > 0.95
 
     counts = get_counts(raw_ans, color_list)
     print('statistics before correction')
@@ -34,13 +34,16 @@ def get_number_and_correct(raw_predict, color_list):
             if not multi_odd and counts[c][i] % 2 == 1:
                 multi_odd = i
 
-        assert (one is not None and multi_odd is not None) \
-               or (one is None and multi_odd is None)
+        if not ((one is not None and multi_odd is not None)
+                or (one is None and multi_odd is None)):
+            print("Unexpected error")
+            continue
 
         if one is not None and multi_odd is not None:
             for i in range(raw_ans.shape[0]):
                 if raw_ans[i] == one:
                     raw_ans[i] = multi_odd
+
 
     counts = get_counts(raw_ans, color_list)
     print('statistics after correction')

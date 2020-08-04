@@ -7,8 +7,11 @@ import tkinter as tk  #line:6
 import tkinter.font as tf  #line:7
 import tkinter.scrolledtext  #line:8
 from PIL.ImageTk import PhotoImage
-from link_search import link_search  #line:9
 sys.path.append("../read_picture/")  #line:10
+sys.path.append("../auto_grader/")  #line:10
+sys.path.append("official/read_picture/")  #line:10
+sys.path.append("official/auto_grader/")  #line:10
+from link_search import link_search  #line:9
 import read_picture  #line:11
 
 

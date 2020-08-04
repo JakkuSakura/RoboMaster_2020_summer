@@ -3,8 +3,17 @@ import number_recognition_keras
 import correction
 import numpy as np
 from colorama import Fore, Back, Style
-
+import os
+current_dir = os.getcwd()
+os.chdir('official/auto_grader')
+from official.auto_grader.auto_grader import auto_grader
+import time
+import pipes
 if __name__ == '__main__':
+    enable_ui = True
+    ag = auto_grader(enable_ui=enable_ui)
+    time.sleep(5)
+    os.chdir(current_dir)
     images = image_process_cv.get_images()
     print('images:', images.shape)
 
@@ -20,18 +29,40 @@ if __name__ == '__main__':
     numbers = correction.get_number_and_correct(raw_predict, colors)
     print('numbers: ', numbers.shape)
 
-    # color_dict = ['R', 'G', 'B']
-    color_dict = [Fore.RED, Fore.GREEN, Fore.BLUE]
+    if enable_ui:
+        color_dict = ['R', 'G', 'B']
+    else:
+        color_dict = [Fore.RED, Fore.GREEN, Fore.BLUE]
     ans_list = [numbers[i] + 10 * (colors[i] + 1) for i in range(64)]
 
     for i in range(8):
         for j in range(8):
-            # print(str(numbers[i * 8 + j]) + color_dict[colors[i * 8 + j]], end=', ')
-            print(color_dict[colors[i*8+j]], numbers[i*8+j], end=' ')
+            if enable_ui:
+                print(str(numbers[i * 8 + j]) + color_dict[colors[i * 8 + j]], end=', ')
+            else:
+                print(color_dict[colors[i*8+j]], numbers[i*8+j], end=' ')
         print()
-    print(Style.RESET_ALL)
+    if not enable_ui:
+        print(Style.RESET_ALL)
     print('Below is for other programs')
     for x in ans_list:
         print(x, end=' ')
     print()
+    with open('map.txt', 'w') as f:
+        for x in ans_list:
+            print(x, end=' ', file=f)
+        print(file=f)
+    os.system('./algorithms/solution <map.txt >solution.txt')
 
+    try:
+        with open('solution.txt', 'r') as f:
+            solutions = [(int(x) // 8, int(x) % 8) for x in f.readline().strip().split(' ')]
+    except:
+        print('No solution!')
+
+    for i in range(len(solutions) // 2):
+        r1, c1 = solutions[i*2]
+        r2, c2 = solutions[i*2+1]
+        ag.link(r1, c1, r2, c2)
+
+    input('enter to exit')
