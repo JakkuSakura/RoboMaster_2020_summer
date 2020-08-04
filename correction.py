@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 
 
@@ -29,21 +31,20 @@ def get_number_and_correct(raw_predict, color_list):
         one = None
         multi_odd = None
         for i in range(counts.shape[1]):
-            if not one and counts[c][i] == 1:
+            if counts[c][i] == 1:
                 one = i
-            if not multi_odd and counts[c][i] % 2 == 1:
+            elif counts[c][i] % 2 == 1:
                 multi_odd = i
 
-        if not ((one is not None and multi_odd is not None)
-                or (one is None and multi_odd is None)):
-            print("Unexpected error")
+        if not((one is not None and multi_odd is not None)
+               or (one is None and multi_odd is None)):
+            print("There can only be an even number of odds", file=sys.stderr)
             continue
 
         if one is not None and multi_odd is not None:
             for i in range(raw_ans.shape[0]):
                 if raw_ans[i] == one:
                     raw_ans[i] = multi_odd
-
 
     counts = get_counts(raw_ans, color_list)
     print('statistics after correction')

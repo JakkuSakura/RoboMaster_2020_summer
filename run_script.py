@@ -8,7 +8,7 @@ current_dir = os.getcwd()
 os.chdir('official/auto_grader')
 from official.auto_grader.auto_grader import auto_grader
 import time
-import pipes
+
 if __name__ == '__main__':
     enable_ui = True
     ag = auto_grader(enable_ui=enable_ui)
@@ -57,12 +57,12 @@ if __name__ == '__main__':
     try:
         with open('solution.txt', 'r') as f:
             solutions = [(int(x) // 8, int(x) % 8) for x in f.readline().strip().split(' ')]
+        for i in range(len(solutions) // 2):
+            r1, c1 = solutions[i*2]
+            r2, c2 = solutions[i*2+1]
+            ag.link(r1, c1, r2, c2)
     except:
         print('No solution!')
 
-    for i in range(len(solutions) // 2):
-        r1, c1 = solutions[i*2]
-        r2, c2 = solutions[i*2+1]
-        ag.link(r1, c1, r2, c2)
 
     input('enter to exit')
