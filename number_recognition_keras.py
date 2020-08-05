@@ -12,6 +12,7 @@ from keras.datasets import mnist
 from keras.layers import Dense, Conv2D, MaxPooling2D, Flatten, Dropout
 from keras.optimizers import Adam
 from keras.utils import np_utils
+from correction import to_numbers
 
 use_model = 'model.hdf5'
 # use_model = None
@@ -102,10 +103,11 @@ def train_model(model, epoch):
     time_str = datetime.now().strftime("%Y%m%d-%H%M%S")
     log_dir = os.path.join('logs', 'fit', time_str)
     tensorboard_callback = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=1)
-    
-    weight_save_callback = ModelCheckpoint(os.path.join('models', 'model_{epoch:02d}-{val_loss:.2f}-%s.hdf5' % time_str),
-                                           monitor='val_loss',
-                                           verbose=0, save_best_only=False, mode='auto')
+
+    weight_save_callback = ModelCheckpoint(
+        os.path.join('models', 'model_{epoch:02d}-{val_loss:.2f}-%s.hdf5' % time_str),
+        monitor='val_loss',
+        verbose=0, save_best_only=False, mode='auto')
 
     x_train, y_train, x_test, y_test = dataset()
     model.fit(x_train, y_train, batch_size=32, epochs=epoch,
@@ -118,17 +120,20 @@ def train_model(model, epoch):
 
 
 if use_model:
-    print("using model", use_model)
+    # print("using model", use_model)
     model = load_model(use_model)
 else:
-    print("training new model")
+    # print("training new model")
     model = train_model(model_2(), epoch=15)
 
 
 def predict(img):
     img = np.array(img).reshape((-1, 28, 28, 1))
-    return model.predict(img)
+    r = []
+    for x in model.predict(img):
+        r.append(to_numbers(x))
+    return r
 
 
 if __name__ == '__main__':
-    pass
+    predict(np.zeros((28 * 28)))

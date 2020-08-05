@@ -13,3 +13,4 @@ solution.txt
 algorithms/solution
 algorithms/solution.exe
 model.npy
+svm.joblib

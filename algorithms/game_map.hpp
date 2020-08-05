@@ -54,7 +54,7 @@ public:
                 return SCORES[6];
             default: // 0~4 lines
                 std::vector<int> bonus = {4, 8, 16, 27, 28, 29, 30, 31, 32};
-                bool bonus_round = std::binary_search(bonus.begin(), bonus.end(), get_steps());
+                bool bonus_round = std::binary_search(bonus.begin(), bonus.end(), 1 + get_steps());
                 if(bonus_round)
                     return DOUBLE_SCORES[result - 1];
                 else
@@ -63,7 +63,7 @@ public:
     }
     int link(int row1, int col1, int row2, int col2) {
         int result = search(row1, col1, row2, col2);
-        current_score += get_score_by_result(current_score);
+        current_score += get_score_by_result(result);
         if (result >= 0)
             remove(row1, col1, row2, col2);
         return result;
