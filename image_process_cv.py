@@ -22,5 +22,5 @@ def get_color(img):
 
 
 def convert_to_gray(img):
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    return img
+    rgb = get_color(img)
+    return img[:, :, rgb]

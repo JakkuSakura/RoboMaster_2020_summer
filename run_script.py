@@ -1,5 +1,5 @@
 import image_process_cv
-import number_recognition_keras
+from number_recognition_kNN_PCA import predict
 import correction
 import numpy as np
 from colorama import Fore, Back, Style
@@ -12,7 +12,8 @@ import time
 if __name__ == '__main__':
     enable_ui = True
     ag = auto_grader(enable_ui=enable_ui)
-    time.sleep(5)
+    print('waiting')
+    time.sleep(3)
     os.chdir(current_dir)
     images = image_process_cv.get_images()
     print('images:', images.shape)
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     colors = np.array([image_process_cv.get_color(x) for x in images])
     print('colors:', colors.shape)
 
-    raw_predict = number_recognition_keras.predict(gray_images)
+    raw_predict = predict(gray_images)
     print('raw_predict', raw_predict)
 
     numbers = correction.get_number_and_correct(raw_predict, colors)

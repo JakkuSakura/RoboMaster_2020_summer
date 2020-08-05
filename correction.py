@@ -3,8 +3,9 @@ import sys
 import numpy as np
 
 
-def to_numbers(one_hot_labels):
-    labels = np.array([one_hot_label.argmax() for one_hot_label in one_hot_labels])
+def to_numbers(labels):
+    if len(labels) == 10:  # if it's one hot encoded
+        labels = np.array([one_hot_label.argmax() for one_hot_label in labels])
     return labels
 
 
@@ -36,8 +37,8 @@ def get_number_and_correct(raw_predict, color_list):
             elif counts[c][i] % 2 == 1:
                 multi_odd = i
 
-        if not((one is not None and multi_odd is not None)
-               or (one is None and multi_odd is None)):
+        if not ((one is not None and multi_odd is not None)
+                or (one is None and multi_odd is None)):
             print("There can only be an even number of odds", file=sys.stderr)
             continue
 
