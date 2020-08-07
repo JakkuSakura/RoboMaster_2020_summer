@@ -33,7 +33,7 @@ public:
         return 0 <= row && row < 8 && 0 <= col && col < 8;
     }
 
-    bool empty(int row, int col) {
+    bool empty(int row, int col) const {
         if (!this->validate(row, col))
             return true;
         return this->removed[row * 8 + col];
@@ -44,7 +44,7 @@ public:
         this->removed[row2 * 8 + col2] = true;
     }
 
-    int get_score_by_result(int result) {
+    int get_score_by_result(int result) const {
         switch (result) {
             case -3: // different colors
                 return SCORES[5];
@@ -69,7 +69,7 @@ public:
         return result;
     }
 
-    int search(int row1, int col1, int row2, int col2) {
+    int search(int row1, int col1, int row2, int col2) const {
         if (!this->validate(row1, col1) || !this->validate(row2, col2) || this->empty(row1, col1)
             || this->empty(row2, col2) || row1 == row2 && col1 == col2)
             return -1;
@@ -94,7 +94,7 @@ public:
         return -2;
     }
 
-    int search_zero(int row1, int col1, int row2, int col2) {
+    int search_zero(int row1, int col1, int row2, int col2) const {
         if (row1 != row2 && col1 != col2)
             return false;
         if (row1 == row2) {
@@ -115,7 +115,7 @@ public:
         }
     }
 
-    bool search_one(int row1, int col1, int row2, int col2) {
+    bool search_one(int row1, int col1, int row2, int col2) const {
         if (row1 == row2 || col1 == col2)
             return false;
         if (this->empty(row1, col2) && this->search_zero(row1, col1, row1, col2) &&
@@ -127,7 +127,7 @@ public:
         return false;
     }
 
-    bool search_two(int row1, int col1, int row2, int col2) {
+    bool search_two(int row1, int col1, int row2, int col2) const {
         for (int i = row1 - 1; i > -2; --i) {
             if (!this->empty(i, col1))
                 break;
@@ -160,7 +160,7 @@ public:
         return false;
     }
 
-    int search_three(int row1, int col1, int row2, int col2) {
+    int search_three(int row1, int col1, int row2, int col2) const {
         for (int i = row1 - 1; i > -2; --i) {
             if (!this->empty(i, col1))
                 break;

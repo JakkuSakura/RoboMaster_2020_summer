@@ -3,7 +3,7 @@
 #include <set>
 #include <unordered_map>
 #include <iostream>
-#include <cassert>
+#include <thread>
 
 using namespace std;
 struct step {
@@ -14,12 +14,15 @@ struct state {
     std::vector<step> steps;
 };
 
+
 struct comp_state {
-    static float get_val(int current_score, int steps) {
-        return (float) current_score + (float) steps * 30;
+    int factor;
+
+    int get_val(int current_score, int steps) {
+        return current_score - steps * factor;
     }
 
-    static float get_val(const state &s) {
+    int get_val(const state &s) {
         return get_val(s.map.current_score, s.map.get_steps());
     }
 
@@ -29,21 +32,21 @@ struct comp_state {
 
 };
 
-state pop_best_state(set<state, comp_state> &qu) {
+state pop_best_state(multiset<state, comp_state> &qu) {
     auto it = qu.begin();
     auto x = *it;
     qu.erase(it);
     return x;
 }
 
-state pop_worst_state(set<state, comp_state> &qu) {
+state pop_worst_state(multiset<state, comp_state> &qu) {
     auto it = --qu.end();
     auto x = *it;
     qu.erase(it);
     return x;
 }
 
-state get_worst_state(set<state, comp_state> &qu) {
+state get_worst_state(multiset<state, comp_state> &qu) {
     auto it = --qu.end();
     return *it;
 }
@@ -61,45 +64,58 @@ void show_ans(ostream &os, const state &s) {
 }
 
 const int QUEUE_LIMIT = 50000;
-static unordered_map<bitset<64>, int> cache;
 
-state solve(const game_map &init_state) {
-    set<state, comp_state> qu;
+state solve(const game_map &init_state, int factor) {
+    unordered_map<bitset<64>, int> cache;
+    int count_n = 0;
+    multiset<state, comp_state> qu(comp_state{factor});
     qu.insert(state{init_state});
-    auto best_solution = state{init_state};
     clock_t begin = clock();
-    while (!qu.empty() && double(clock() - begin) / CLOCKS_PER_SEC < 5) {
+    state best_solution;
+    while (!qu.empty()) {
+        if (double(clock() - begin) / CLOCKS_PER_SEC > 15) {
+            cerr << "timeout" << endl;
+            break;
+        }
         state x = pop_best_state(qu);
-//        show_ans(cout, x);
+        count_n += 1;
+        if (count_n % 20000 == 0) {
+            cerr << "facor=" << factor << " ";
+            cerr << "queue_size=" << qu.size() << " ";
+            cerr << "count=" << count_n << endl;
+        }
         if (x.map.current_score > best_solution.map.current_score) {
             best_solution = x;
             show_ans(cerr, x);
             begin = clock();
         }
+
         for (int i = 0; i < 64; ++i) {
-            if (x.map.empty(i / 8, i % 8)) continue;
+            int r1 = i / 8;
+            int c1 = i % 8;
+            if (x.map.empty(r1, c1)) continue;
             for (int j = i + 1; j < 64; ++j) {
-                if (x.map.empty(j / 8, j % 8)) continue;
-                int result = x.map.search(i / 8, i % 8, j / 8, j % 8);
+                int r2 = j / 8;
+                int c2 = j % 8;
+                if (x.map.empty(r2, c2)) continue;
+                int result = x.map.search(r1, c1, r2, c2);
                 if (x.map.get_score_by_result(result) < 0) continue;
                 int score = x.map.current_score + x.map.get_score_by_result(result);
-                if (qu.size() < QUEUE_LIMIT ||
-                    comp_state::get_val(score, x.map.get_steps() + 1) > comp_state::get_val(get_worst_state(qu))) {
-                    auto new_s = x;
+
 //                    to avoid redundant computation
 //                    new_s.map.link(i / 8, i % 8, j / 8, j % 8);
-                    new_s.map.current_score = score;
-                    new_s.steps.push_back(step{i, j});
-                    new_s.map.remove(i / 8, i % 8, j / 8, j % 8);
-                    if (!cache.count(new_s.map.removed) || score > cache[new_s.map.removed]) {
-                        qu.insert(new_s);
-                        cache[new_s.map.removed] = score;
-                        if (qu.size() > QUEUE_LIMIT)
-                            pop_worst_state(qu);
-                    }
+                auto new_s = x;
+                new_s.map.current_score = score;
+                new_s.steps.push_back(step{i, j});
+                new_s.map.remove(r1, c1, r2, c2);
+                if (score > cache[new_s.map.removed]) {
+                    qu.insert(new_s);
+                    cache[new_s.map.removed] = score;
                 }
             }
         }
+        while (qu.size() > QUEUE_LIMIT)
+            pop_worst_state(qu);
     }
     return best_solution;
 }
@@ -111,23 +127,36 @@ int main() {
         if (ans_list[i] == 0)
             map.removed[i] = true;
     }
-    auto answer = solve(map);
-    if (answer.map.get_steps() < 32) {
+
+    state global_best_solution;
+    vector<int> factors;
+    for (int factor = 30; factor > 5; factor -= 3) {
+        factors.push_back(factor);
+    }
+    vector<state> results(factors.size());
+    vector<thread> threads;
+    for (int i = 0; i < factors.size(); ++i) {
+        threads.emplace_back(thread([&, i]() {
+            results[i] = solve(map, factors[i]);
+        }));
+
+    }
+    for (int i = 0; i < factors.size(); ++i) {
+        if (threads[i].joinable())
+            threads[i].join();
+        auto best_solution = results[i];
+        if (best_solution.map.current_score > global_best_solution.map.current_score)
+            global_best_solution = best_solution;
+    }
+
+    if (global_best_solution.map.get_steps() < 32) {
         cerr << "Solution not complete" << endl;
     } else {
         cerr << "Done" << endl;
     }
-//    cerr << "Final solution" << endl;
-//    char buf[256];
-//    for (auto step : answer.steps) {
-//        int r1 = step.o1 / 8, c1 = step.o1 % 8;
-//        int r2 = step.o2 / 8, c2 = step.o2 % 8;
-//        int rr = map.link(r1, c1, r2, c2);
-//        sprintf(buf, "(%d,%d)-(%d,%d) score:%d status:%d", r1, c1, r2, c2, map.current_score, rr);
-//        cerr << buf << endl;
-//    }
-//    cerr << std::endl;
-    for (auto step : answer.steps) {
+
+    show_ans(cerr, global_best_solution);
+    for (auto step : global_best_solution.steps) {
         cout << step.o1 << " " << step.o2 << " ";
     }
     cout << std::endl;

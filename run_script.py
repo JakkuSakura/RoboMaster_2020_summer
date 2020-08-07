@@ -53,6 +53,8 @@ if __name__ == '__main__':
     print('colors:', colors.shape)
 
     predict_funcs = [('knn', predict_knn), ('svm', predict_svm), ('cnn', predict_cnn)]
+    # predict_funcs = [('svm', predict_svm)]
+
     pl = len(predict_funcs)
     predicts = np.zeros((64, pl), dtype=int)
     for i in range(pl):
