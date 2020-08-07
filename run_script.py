@@ -1,7 +1,7 @@
 import image_process_cv
 from number_recognition_kNN_PCA import predict as predict_knn
-# from number_recognition_svm_PCA import predict as predict_svm
-# from number_recognition_keras import predict as predict_cnn
+from number_recognition_svm_PCA import predict as predict_svm
+from number_recognition_keras import predict as predict_cnn
 import correction
 import numpy as np
 from colorama import Fore, Back, Style
@@ -52,7 +52,7 @@ if __name__ == '__main__':
     colors = np.array([image_process_cv.get_color(x) for x in images])
     print('colors:', colors.shape)
 
-    predict_funcs = [('knn', predict_knn)]#, ('svm', predict_svm), ('cnn', predict_cnn)]
+    predict_funcs = [('knn', predict_knn), ('svm', predict_svm), ('cnn', predict_cnn)]
     pl = len(predict_funcs)
     predicts = np.zeros((64, pl), dtype=int)
     for i in range(pl):
