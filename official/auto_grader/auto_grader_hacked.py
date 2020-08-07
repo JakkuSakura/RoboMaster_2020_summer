@@ -159,29 +159,21 @@ class auto_grader:  # line:14
             return 'GREEN'  # line:161
         return 'BLUE'  # line:162
 
-    def link(self, row1, col1,
-             row2, col2):  # line:164
+    def link(self, row1, col1, row2, col2):  # line:164
         index1 = self.index(row1, col1)  # line:165
         index2 = self.index(row2, col2)  # line:166
         if self.enable_ui:  # line:167
             time.sleep(0.5)  # line:168
         obj = self.ls.search(row1, col1, row2, col2)  # line:169
         if isinstance(obj, list):  # line:170
-            self.current_score += self.scores[
-                5]  # line:171
+            self.current_score += self.scores[5]  # line:171
             print('Wrong! {0}'.format(self.scores[5]))  # line:172
-            print('{0}, {1} is {2} {3}'.format(
-                row1, col1,
-                self.color(obj[0][0]), obj[0][1]))  # line:175
-            print('{0}, {1} is {2} {3}'.format(
-                row2, col2,
-                self.color(obj[1][0]),
-                obj[1][1]))  # line:178
+            print('{0}, {1} is {2} {3}'.format(row1, col1, self.color(obj[0][0]), obj[0][1]))  # line:175
+            print('{0}, {1} is {2} {3}'.format(row2, col2, self.color(obj[1][0]), obj[1][1]))  # line:178
             color = self.wrong_color  # line:179
         elif obj == -2:  # line:180
             self.current_score += self.scores[4]  # line:181
-            print('Took more than four lines! {0}'.format(
-                self.scores[4]))  # line:182
+            print('Took more than four lines! {0}'.format(self.scores[4]))  # line:182
             color = self.wrong_color  # line:183
         elif obj == -1:  # line:184
             self.current_score += self.scores[6]  # line:185
@@ -199,8 +191,7 @@ class auto_grader:  # line:14
                 print('Right! +{0}'.format(
                     self.scores[obj - 1]))  # line:196
             color = self.right_color  # line:197
-        print('Current score =',
-              self.current_score)  # line:198
+        print('Current score =', self.current_score)  # line:198
         print('**********************')  # line:199
         if self.enable_ui:  # line:200
             self.score_label.config(text='Score {0}'.format(

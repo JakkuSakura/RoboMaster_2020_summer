@@ -27,7 +27,6 @@ def get_number_and_correct(raw_predict, color_list):
     counts = get_counts(raw_predict, color_list)
     print('statistics before correction')
     print(counts)
-    return raw_predict
 
     raw_ans = raw_predict
     # for i in range(raw_ans.shape[0]):
@@ -41,10 +40,18 @@ def get_number_and_correct(raw_predict, color_list):
         one = None
         multi_odd = None
         for i in range(counts.shape[1]):
-            if not one and counts[c][i] == 1:
+            if counts[c][i] == 1:
+                if one:
+                    print("There can only be one number that appears once each color", file=sys.stderr)
+                    break
                 one = i
             elif counts[c][i] % 2 == 1:
+                if multi_odd:
+                    print("There can only be one number that appears odd times other than once each color", file=sys.stderr)
+                    break
                 multi_odd = i
+        else:
+            continue
 
         if not ((one is not None and multi_odd is not None)
                 or (one is None and multi_odd is None)):

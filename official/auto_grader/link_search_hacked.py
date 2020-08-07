@@ -22,8 +22,8 @@ class link_search:  # line:2
         self.grid[row2][col2] = True  # line:23
 
     def search(self, row1, col1, row2, col2):  # line:25
-        if not self.validate(row1, col1) or not self.validate(row2, col2) or self.empty(row1, col1) or self.empty(row2,
-                                                                                                                  col2) or row1 == row2 and col1 == col2:  # line:28
+        if not self.validate(row1, col1) or not self.validate(row2, col2) or self.empty(row1, col1) \
+                or self.empty(row2, col2) or row1 == row2 and col1 == col2:  # line:28
             return -1  # line:29
         index1 = row1 * 8 + col1  # line:30
         index2 = row2 * 8 + col2  # line:31

@@ -64,9 +64,6 @@ const int QUEUE_LIMIT = 50000;
 static unordered_map<bitset<64>, int> cache;
 
 state solve(const game_map &init_state) {
-    int counts[128] = {0};
-    for(int x : ans_list)
-        counts[x] += 1;
     set<state, comp_state> qu;
     qu.insert(state{init_state});
     auto best_solution = state{init_state};
@@ -79,15 +76,10 @@ state solve(const game_map &init_state) {
             show_ans(cerr, x);
             begin = clock();
         }
-        bool inserted = false;
-        int loop = 0;
-        again:
         for (int i = 0; i < 64; ++i) {
             if (x.map.empty(i / 8, i % 8)) continue;
-            if (!inserted && counts[ans_list[i]] % 2 == 1) continue;
             for (int j = i + 1; j < 64; ++j) {
                 if (x.map.empty(j / 8, j % 8)) continue;
-                if (!inserted && counts[ans_list[j]] % 2 == 1) continue;
                 int result = x.map.search(i / 8, i % 8, j / 8, j % 8);
                 if (x.map.get_score_by_result(result) < 0) continue;
                 int score = x.map.current_score + x.map.get_score_by_result(result);
@@ -101,7 +93,6 @@ state solve(const game_map &init_state) {
                     new_s.map.remove(i / 8, i % 8, j / 8, j % 8);
                     if (!cache.count(new_s.map.removed) || score > cache[new_s.map.removed]) {
                         qu.insert(new_s);
-                        inserted = true;
                         cache[new_s.map.removed] = score;
                         if (qu.size() > QUEUE_LIMIT)
                             pop_worst_state(qu);
@@ -109,20 +100,22 @@ state solve(const game_map &init_state) {
                 }
             }
         }
-        if(loop < 1 && inserted) {
-            loop += 1;
-            goto again;
-        }
     }
     return best_solution;
 }
 
 int main() {
-    ans_list = read_list(cin, 8 * 8);
     game_map map;
+    ans_list = read_list(cin, 8 * 8);
+    for (int i = 0; i < ans_list.size(); ++i) {
+        if (ans_list[i] == 0)
+            map.removed[i] = true;
+    }
     auto answer = solve(map);
-    if (answer.steps.size() < 32) {
+    if (answer.map.get_steps() < 32) {
         cerr << "Solution not complete" << endl;
+    } else {
+        cerr << "Done" << endl;
     }
 //    cerr << "Final solution" << endl;
 //    char buf[256];
