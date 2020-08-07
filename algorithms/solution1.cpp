@@ -63,7 +63,7 @@ void show_ans(ostream &os, const state &s) {
     os << std::endl;
 }
 
-const int QUEUE_LIMIT = 50000;
+const int QUEUE_LIMIT = 100000;
 
 state solve(const game_map &init_state, int factor) {
     unordered_map<bitset<64>, int> cache;
@@ -73,14 +73,14 @@ state solve(const game_map &init_state, int factor) {
     clock_t begin = clock();
     state best_solution;
     while (!qu.empty()) {
-        if (double(clock() - begin) / CLOCKS_PER_SEC > 15) {
-            cerr << "timeout" << endl;
+        if (double(clock() - begin) / CLOCKS_PER_SEC > 45) {
+            cerr << "factor=" << factor << " timeout" << endl;
             break;
         }
         state x = pop_best_state(qu);
         count_n += 1;
-        if (count_n % 20000 == 0) {
-            cerr << "facor=" << factor << " ";
+        if (count_n % 50000 == 0) {
+            cerr << "factor=" << factor << " ";
             cerr << "queue_size=" << qu.size() << " ";
             cerr << "count=" << count_n << endl;
         }
@@ -130,7 +130,7 @@ int main() {
 
     state global_best_solution;
     vector<int> factors;
-    for (int factor = 30; factor > 5; factor -= 3) {
+    for (int factor = 30; factor > 5; factor -= 2) {
         factors.push_back(factor);
     }
     vector<state> results(factors.size());
