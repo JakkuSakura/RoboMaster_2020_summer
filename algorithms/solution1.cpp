@@ -53,7 +53,7 @@ state get_worst_state(multiset<state, comp_state> &qu) {
 
 void show_ans(ostream &os, const state &s) {
     char buf[256];
-    os << "socre: " << s.map.current_score << " ";
+    os << "score: " << s.map.current_score << " ";
     for (auto step : s.steps) {
         int r1 = step.o1 / 8, c1 = step.o1 % 8;
         int r2 = step.o2 / 8, c2 = step.o2 % 8;
