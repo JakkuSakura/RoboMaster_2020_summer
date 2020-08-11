@@ -133,7 +133,7 @@ bool try_progress(state &x) {
     return modified;
 }
 
-const int QUEUE_LIMIT = 100000;
+const int QUEUE_LIMIT = 8000;
 double end_clock;
 
 double time_in_secs() {
@@ -195,10 +195,10 @@ state solve(const game_map &init_state, int factor) {
             cerr << "queue_size=" << qu.size() << " ";
             cerr << "count=" << count_n << endl;
         }
-        if (x.map.current_score == 1370) {
-            cerr << "Remaining time " << end_clock - time_in_secs() << endl;
-            exit(0);
-        }
+//        if (x.map.current_score == 1400) {
+//            cerr << "Remaining time " << end_clock - time_in_secs() << endl;
+//            exit(0);
+//        }
         if (x.map.current_score > best_solution.map.current_score) {
             best_solution = x;
             show_ans(cerr, x);
