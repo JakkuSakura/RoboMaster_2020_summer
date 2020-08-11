@@ -255,7 +255,7 @@ class auto_grader:  #line:14
                 bg=O000O0OOOO00000O0)  #line:202
             OO0O0OOO00OO0OOOO.img_button_list[O0OO00O0OO00O0OOO].config(
                 bg=O000O0OOOO00000O0)  #line:203
-            time.sleep(0.75)  #line:204
+            time.sleep(0.25)  #line:204
             for OOO0O0OOOOOOOOO0O in OO0O0OOO00OO0OOOO.img_button_list:  #line:205
                 OOO0O0OOOOOOOOO0O.config(
                     bg=OO0O0OOO00OO0OOOO.unselected)  #line:206

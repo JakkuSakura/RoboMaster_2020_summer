@@ -1,3 +1,6 @@
+import sys
+from datetime import datetime
+
 enable_ui = True
 cheating = True
 import image_process_cv
@@ -44,7 +47,7 @@ class status:
 def main():
     ag = auto_grader(enable_ui=enable_ui)
     print('waiting')
-    time.sleep(2)
+    time.sleep(1)
     os.chdir(current_dir)
     images = image_process_cv.get_images()
     print('images:', images.shape)
@@ -103,6 +106,15 @@ def main():
             os.system('algorithms/solution <map.txt >solution.txt')
             with open('solution.txt', 'r') as f:
                 line = f.readline().strip()
+                score = f.readline().strip()
+                # We only need scores greater than 1470
+                if int(score) <= 1470:
+                    sys.exit()
+                with open('scores.txt', 'a') as f2:
+                    f2.write(score)
+                    f2.write(' ')
+                    f2.write(datetime.now().strftime("%Y%m%d-%H%M%S"))
+                    f2.write('\n')
                 if line:
                     solutions = [(int(x) // 8, int(x) % 8) for x in line.split(' ')]
                     for i in range(len(solutions) // 2):
@@ -125,13 +137,12 @@ def main():
                             s.ans[i] = s.ans[i] // 10 * 10
                             # change everything in the same color to zero
 
-
-
     except Exception as e:
         print(e)
-
-    input('enter to exit')
 
 
 if __name__ == '__main__':
     main()
+    # input('enter to exit')
+    time.sleep(3)
+    sys.exit(1)
