@@ -202,7 +202,7 @@ state solve(const game_map &init_state, int factor) {
         if (x.map.current_score > best_solution.map.current_score) {
             best_solution = x;
             show_ans(cerr, x);
-            begin = clock();
+            begin = time_in_secs();
         }
         if (try_progress(x))
             try_progress(x);
