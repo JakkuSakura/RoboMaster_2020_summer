@@ -62,22 +62,23 @@ void show_ans(ostream &os, const state &s) {
     }
     os << std::endl;
 }
+
 // numbers that can only be linked by 2 lines
 bool two_liner[128];
 vector<int> occurrences[128];
+
 void preprocess(game_map map) {
     for (int i = 0; i < 64; ++i) {
         int color = ans_list[i];
         occurrences[color].push_back(i);
     }
-    for (int color = 1; color < 128; ++color)
-    {
+    for (int color = 1; color < 128; ++color) {
         two_liner[color] = true;
         for (int i : occurrences[color]) {
+            int r1 = i / 8;
+            int c1 = i % 8;
             for (int j : occurrences[color]) {
                 if (i == j) continue;
-                int r1 = i / 8;
-                int c1 = i % 8;
                 int r2 = j / 8;
                 int c2 = j % 8;
                 if (r1 == r2 || c1 == c2)
@@ -91,26 +92,45 @@ void try_progress(state &x) {
     if (x.map.get_steps() >= 16)
         // we can eliminate linking that are only consisted of 2 lines
     {
-        for (int i = 0; i < 64; ++i) {
-            int r1 = i / 8;
-            int c1 = i % 8;
-            if (x.map.empty(r1, c1)) continue;
-            if (!two_liner[ans_list[i]]) continue;
-            for (int j : occurrences[ans_list[i]]) {
-                if (i == j) continue;
-                int r2 = j / 8;
-                int c2 = j % 8;
-                if (x.map.empty(r2, c2)) continue;
-                int result = x.map.search(r1, c1, r2, c2);
-                if (x.map.get_score_by_result(result) != 20) continue;
-                int score = x.map.current_score + x.map.get_score_by_result(result);
-
-                x.map.current_score = score;
-                x.steps.push_back(step{i, j});
-                x.map.remove(r1, c1, r2, c2);
+        for (int color = 10; color < 40; ++color) {
+            if (!two_liner[color]) {
+                for (int i : occurrences[color]) {
+                    int r1 = i / 8;
+                    int c1 = i % 8;
+                    if (x.map.empty(r1, c1)) continue;
+                    for (int j : occurrences[color]) {
+                        if (i == j) continue;
+                        int r2 = j / 8;
+                        int c2 = j % 8;
+                        if (x.map.empty(r2, c2)) continue;
+                        if (r1 == r2 || c1 == c2)
+                            goto l_exit;
+                    }
+                }
             }
-        }
+            for (int i : occurrences[color]) {
+                int r1 = i / 8;
+                int c1 = i % 8;
+                if (x.map.empty(r1, c1)) continue;
+                for (int j : occurrences[color]) {
+                    if (i == j) continue;
+                    int r2 = j / 8;
+                    int c2 = j % 8;
+                    if (x.map.empty(r2, c2)) continue;
+                    int result = x.map.search(r1, c1, r2, c2);
+                    if (x.map.get_score_by_result(result) != 20) continue;
+                    int score = x.map.current_score + x.map.get_score_by_result(result);
 
+                    x.map.current_score = score;
+                    x.steps.push_back(step{i, j});
+                    x.map.remove(r1, c1, r2, c2);
+                    break;
+                }
+
+            }
+            l_exit:;
+
+        }
     }
 }
 
