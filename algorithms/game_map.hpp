@@ -24,22 +24,30 @@ public:
         removed = 0;
         current_score = 0;
     }
-    int get_steps() const {
+    inline int get_steps() const {
         return removed.count() >> 1;
     }
 
 
-    bool validate(int row, int col) const {
+    inline bool validate(int row, int col) const {
         return 0 <= row && row < 8 && 0 <= col && col < 8;
     }
+    inline bool empty(int a) const {
+        return this->removed[a];
+    }
 
-    bool empty(int row, int col) const {
+    inline bool empty(int row, int col) const {
         if (!this->validate(row, col))
             return true;
         return this->removed[row * 8 + col];
     }
 
-    void remove(int row1, int col1, int row2, int col2) {
+    inline void remove(int a, int b) {
+        this->removed[a] = true;
+        this->removed[b] = true;
+    }
+
+    inline void remove(int row1, int col1, int row2, int col2) {
         this->removed[row1 * 8 + col1] = true;
         this->removed[row2 * 8 + col2] = true;
     }

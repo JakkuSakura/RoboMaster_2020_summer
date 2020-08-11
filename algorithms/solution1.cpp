@@ -95,14 +95,14 @@ void try_progress(state &x) {
         for (int color = 10; color < 40; ++color) {
             if (!two_liner[color]) {
                 for (int i : occurrences[color]) {
+                    if (x.map.empty(i)) continue;
                     int r1 = i / 8;
                     int c1 = i % 8;
-                    if (x.map.empty(r1, c1)) continue;
                     for (int j : occurrences[color]) {
                         if (i == j) continue;
                         int r2 = j / 8;
                         int c2 = j % 8;
-                        if (x.map.empty(r2, c2)) continue;
+                        if (x.map.empty(j)) continue;
                         if (r1 == r2 || c1 == c2)
                             goto l_exit;
                     }
@@ -111,19 +111,19 @@ void try_progress(state &x) {
             for (int i : occurrences[color]) {
                 int r1 = i / 8;
                 int c1 = i % 8;
-                if (x.map.empty(r1, c1)) continue;
+                if (x.map.empty(i)) continue;
                 for (int j : occurrences[color]) {
                     if (i == j) continue;
                     int r2 = j / 8;
                     int c2 = j % 8;
-                    if (x.map.empty(r2, c2)) continue;
+                    if (x.map.empty(j)) continue;
                     int result = x.map.search(r1, c1, r2, c2);
                     if (x.map.get_score_by_result(result) != 20) continue;
                     int score = x.map.current_score + x.map.get_score_by_result(result);
 
                     x.map.current_score = score;
                     x.steps.push_back(step{i, j});
-                    x.map.remove(r1, c1, r2, c2);
+                    x.map.remove(i, j);
                     break;
                 }
 
@@ -139,16 +139,16 @@ clock_t end_clock;
 
 void progress(unordered_map<bitset<64>, int> &cache, multiset<state, comp_state> &qu, const state &x) {
     for (int i = 0; i < 64; ++i) {
+        if (x.map.empty(i)) continue;
         int r1 = i / 8;
         int c1 = i % 8;
-        if (x.map.empty(r1, c1)) continue;
         for (int j : occurrences[ans_list[i]])
 //            for (int j = i + 1; j < 64; ++j)
         {
             if (i == j) continue;
+            if (x.map.empty(j)) continue;
             int r2 = j / 8;
             int c2 = j % 8;
-            if (x.map.empty(r2, c2)) continue;
             int result = x.map.search(r1, c1, r2, c2);
             if (x.map.get_score_by_result(result) < 0) continue;
             int score = x.map.current_score + x.map.get_score_by_result(result);
@@ -158,7 +158,7 @@ void progress(unordered_map<bitset<64>, int> &cache, multiset<state, comp_state>
             auto new_s = x;
             new_s.map.current_score = score;
             new_s.steps.push_back(step{i, j});
-            new_s.map.remove(r1, c1, r2, c2);
+            new_s.map.remove(i, j);
             if (score > cache[new_s.map.removed]) {
                 qu.insert(new_s);
                 cache[new_s.map.removed] = score;
