@@ -12,22 +12,23 @@ struct step {
 struct state {
     game_map map;
     std::vector<step> steps;
+    int val = 0;
 };
 
 
 struct comp_state {
     int factor;
 
-    int get_val(int current_score, int steps) {
+    inline int get_val(int current_score, int steps) const {
         return current_score - steps * factor;
     }
 
-    int get_val(const state &s) {
+    inline int get_val(const state &s) const {
         return get_val(s.map.current_score, s.map.get_steps());
     }
 
-    bool operator()(const state &lhs, const state &rhs) {
-        return get_val(lhs) > get_val(rhs);
+    inline bool operator()(const state &lhs, const state &rhs) const {
+        return lhs.val > rhs.val;
     }
 
 };
@@ -46,11 +47,6 @@ state pop_worst_state(multiset<state, comp_state> &qu) {
     return x;
 }
 
-state get_worst_state(multiset<state, comp_state> &qu) {
-    auto it = --qu.end();
-    return *it;
-}
-
 void show_ans(ostream &os, const state &s) {
     char buf[256];
     os << "score: " << s.map.current_score << " ";
@@ -67,7 +63,7 @@ void show_ans(ostream &os, const state &s) {
 bool two_liner[128];
 vector<int> occurrences[128];
 
-void preprocess(game_map map) {
+void preprocess() {
     for (int i = 0; i < 64; ++i) {
         int color = ans_list[i];
         occurrences[color].push_back(i);
@@ -88,9 +84,10 @@ void preprocess(game_map map) {
     }
 }
 
-void try_progress(state &x) {
+bool try_progress(state &x) {
+    bool modified = false;
     if (x.map.get_steps() >= 16)
-        // we can eliminate linking that are only consisted of 2 lines
+        // we can eliminate links that are only consisted of 2 lines
     {
         for (int color = 10; color < 40; ++color) {
             if (!two_liner[color]) {
@@ -124,6 +121,7 @@ void try_progress(state &x) {
                     x.map.current_score = score;
                     x.steps.push_back(step{i, j});
                     x.map.remove(i, j);
+                    modified = true;
                     break;
                 }
 
@@ -132,12 +130,20 @@ void try_progress(state &x) {
 
         }
     }
+    return modified;
 }
 
 const int QUEUE_LIMIT = 100000;
-clock_t end_clock;
+double end_clock;
 
-void progress(unordered_map<bitset<64>, int> &cache, multiset<state, comp_state> &qu, const state &x) {
+double time_in_secs() {
+    timespec start{};
+    clock_gettime(CLOCK_MONOTONIC, &start);
+    double secs = start.tv_sec + start.tv_nsec / 1000000000.0;
+    return secs;
+}
+
+void progress(unordered_map<bitset<64>, int> &cache, multiset<state, comp_state> &qu, const state &x, int factor) {
     for (int i = 0; i < 64; ++i) {
         if (x.map.empty(i)) continue;
         int r1 = i / 8;
@@ -156,10 +162,12 @@ void progress(unordered_map<bitset<64>, int> &cache, multiset<state, comp_state>
 //                    to avoid redundant computation
 //                    new_s.map.link(i / 8, i % 8, j / 8, j % 8);
             auto new_s = x;
-            new_s.map.current_score = score;
-            new_s.steps.push_back(step{i, j});
             new_s.map.remove(i, j);
             if (score > cache[new_s.map.removed]) {
+                new_s.map.current_score = score;
+                new_s.steps.push_back(step{i, j});
+                new_s.val = comp_state{factor}.get_val(new_s);
+
                 qu.insert(new_s);
                 cache[new_s.map.removed] = score;
             }
@@ -169,13 +177,14 @@ void progress(unordered_map<bitset<64>, int> &cache, multiset<state, comp_state>
 
 state solve(const game_map &init_state, int factor) {
     unordered_map<bitset<64>, int> cache;
-    int count_n = 0;
+    unsigned int count_n = 0;
     multiset<state, comp_state> qu(comp_state{factor});
     qu.insert(state{init_state});
-    clock_t begin = clock();
+    double begin = time_in_secs();
     state best_solution;
     while (!qu.empty()) {
-        if (double(clock() - begin) / CLOCKS_PER_SEC > 20 || (end_clock != 0 && clock() > end_clock)) {
+//        if ((count_n >> 10u) & 1u)  strange extra time cost
+        if (time_in_secs() - begin > 20 || (end_clock != 0 && time_in_secs() > end_clock)) {
             cerr << "factor=" << factor << " timeout" << endl;
             break;
         }
@@ -186,13 +195,19 @@ state solve(const game_map &init_state, int factor) {
             cerr << "queue_size=" << qu.size() << " ";
             cerr << "count=" << count_n << endl;
         }
+        if (x.map.current_score == 1370) {
+            cerr << "Remaining time " << end_clock - time_in_secs() << endl;
+            exit(0);
+        }
         if (x.map.current_score > best_solution.map.current_score) {
             best_solution = x;
             show_ans(cerr, x);
             begin = clock();
         }
-        try_progress(x);
-        progress(cache, qu, x);
+        if (try_progress(x))
+            try_progress(x);
+
+        progress(cache, qu, x, factor);
         while (qu.size() > QUEUE_LIMIT)
             pop_worst_state(qu);
     }
@@ -206,8 +221,9 @@ int main() {
         if (ans_list[i] == 0)
             map.removed[i] = true;
     }
-    preprocess(map);
-    end_clock = clock() + 120 * CLOCKS_PER_SEC;
+    preprocess();
+    end_clock = time_in_secs() + 120;
+
     state global_best_solution;
     vector<int> factors;
     for (int factor = 30; factor > 5; factor -= 2) {
