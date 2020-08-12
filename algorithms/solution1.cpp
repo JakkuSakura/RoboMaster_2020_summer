@@ -222,11 +222,11 @@ int main() {
             map.removed[i] = true;
     }
     preprocess();
-    end_clock = time_in_secs() + 120;
+    end_clock = time_in_secs() + 60;
 
     state global_best_solution;
     vector<int> factors;
-    for (int factor = 30; factor > 5; factor -= 2) {
+    for (int factor = 30; factor >= 10; factor -= 2) {
         factors.push_back(factor);
     }
     vector<state> results(factors.size());

@@ -43,7 +43,6 @@ class status:
 
         return True
 
-
 def main():
     ag = auto_grader(enable_ui=enable_ui)
     print('waiting')
@@ -107,9 +106,7 @@ def main():
             with open('solution.txt', 'r') as f:
                 line = f.readline().strip()
                 score = f.readline().strip()
-                # We only need scores greater than 1470
-                if int(score) <= 1470:
-                    sys.exit()
+
                 with open('scores.txt', 'a') as f2:
                     f2.write(score)
                     f2.write(' ')
@@ -143,6 +140,4 @@ def main():
 
 if __name__ == '__main__':
     main()
-    # input('enter to exit')
-    time.sleep(3)
-    sys.exit(1)
+    input('enter to exit')

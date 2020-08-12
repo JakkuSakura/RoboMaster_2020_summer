@@ -16,5 +16,11 @@ std::vector<int> read_list(std::istream &is, int n) {
     }
     return v;
 }
+void write_list(std::ostream &os, const std::vector<int> &v) {
+    for (int i = 0; i < v.size(); ++i) {
+           os << v[i] << " ";
+    }
+    os << std::endl;
+}
 
 #endif //ALGORITHMS_READ_MAP_HPP
