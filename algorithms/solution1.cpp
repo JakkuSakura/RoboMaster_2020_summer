@@ -199,13 +199,14 @@ state solve(const game_map &init_state, int factor) {
 //            cerr << "Remaining time " << end_clock - time_in_secs() << endl;
 //            exit(0);
 //        }
+        if (try_progress(x))
+            try_progress(x);
+
         if (x.map.current_score > best_solution.map.current_score) {
             best_solution = x;
             show_ans(cerr, x);
             begin = time_in_secs();
         }
-        if (try_progress(x))
-            try_progress(x);
 
         progress(cache, qu, x, factor);
         while (qu.size() > QUEUE_LIMIT)
